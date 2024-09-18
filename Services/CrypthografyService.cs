@@ -13,7 +13,7 @@ namespace CineApi.Services
 
         public string HashPassword(string password)
         {
-            return BCrypt.Net.BCrypt.HashPassword(password, 10);
+            return BCrypt.Net.BCrypt.HashPassword(password, 8);
 
         }
     }
