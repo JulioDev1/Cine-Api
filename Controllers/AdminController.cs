@@ -25,7 +25,7 @@ namespace CineApi.Controllers
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]  // Sucesso
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<Guid>> CreateMovieAsync(MovieDto movieDto, int qtd)
+        public async Task<ActionResult<Guid>> CreateMovieAsync([FromBody] CreateRequestMovie request)
         {
             var Id = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier);
 
@@ -43,9 +43,9 @@ namespace CineApi.Controllers
             {
                 return Unauthorized("user not admin");
             }
-            var movieId = await adminServices.CreateMovieAndChairs(movieDto, user.Id, qtd);
+            var movieId = await adminServices.CreateMovieAndChairs(request.MovieDto, user.Id, request.Qtd);
 
-            return user.Id;
+            return movieId;
         }
     }
 }
