@@ -15,7 +15,7 @@ namespace CineApi.Services
         }
         public async Task<Guid> CreateMovieAndChairs(MovieDto movieDto, Guid userId, int qtd)
         {
-           var guid = await adminRepository.CreateMovieByAdmin(movieDto, qtd);
+           var guid = await adminRepository.CreateMovieByAdmin(movieDto, userId, qtd);
 
             var MovieByAdmin = new UserMovies
             {

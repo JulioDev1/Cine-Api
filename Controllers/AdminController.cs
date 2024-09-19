@@ -1,4 +1,4 @@
-﻿using CineApi.Dto;
+﻿   using CineApi.Dto;
 using CineApi.Model;
 using CineApi.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -37,13 +37,15 @@ namespace CineApi.Controllers
 
             var user = await userService.GetUserByIdService(userId);
 
+            Console.WriteLine(user.Id);
+
             if (user.Role != UserRole.Admin)
             {
                 return Unauthorized("user not admin");
             }
             var movieId = await adminServices.CreateMovieAndChairs(movieDto, user.Id, qtd);
 
-            return movieId;
+            return user.Id;
         }
     }
 }
