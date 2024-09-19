@@ -2,6 +2,7 @@
 {
     public class MovieDto
     {
+        public Guid? Id {get; set;}
         public required string Title { get; set; }
         public required string Description { get; set; }
         public required int AgeRange { get; set; }
