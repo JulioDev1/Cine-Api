@@ -4,8 +4,7 @@ using CineApi.Model;
 using CineApi.Repositories.Interface;
 using Dapper;
 using System.Data;
-using System.DirectoryServices.ActiveDirectory;
-using System.Runtime.CompilerServices;
+
 
 namespace CineApi.Repositories
 {
@@ -102,27 +101,45 @@ namespace CineApi.Repositories
             using (var transaction = connection.BeginTransaction())
             {
                 var checkQuery = @"SELECT COUNT(1) 
-                                   FROM usermovies um
-                                   JOIN users u ON um.userid = u.id
+                                   FROM UserMovies um
+                                   JOIN Users u ON  u.id = um.userid 
                                    WHERE um.movieid = @MovieId AND u.id = @UserId";
 
                 var MovieAdmin = await connection.ExecuteScalarAsync<int>(checkQuery, 
-                    new { MovieId = movieId, UserId = userId}, transaction);
+                    new { MovieId = movieId, UserId = userId}, transaction);  
 
                 if(MovieAdmin == 0)
                 {
                     throw new UnauthorizedAccessException("dont have permission");
                 }
 
-                var updateQuery = @"UPDATE movies 
-                                  SET title = @Title, description =  @Description, ageRange = @AgeRange, genre = @Genre, eventDay = @EventDay 
-                                  WHERE Id = @MovieId
+                var updateQuery = @"UPDATE movies
+                                    SET title = @Title, 
+                                    description = @Description, 
+                                    agerange = @AgeRange, 
+                                    genre = @Genre, 
+                                    eventday = @EventDay
+                                    WHERE id = @Id
                 ";
+                var id = movieId;
+                var movie = new Movie
+                {
+                    Id = id,
+                    Title = movieDto.Title,
+                    Description = movieDto.Description,
+                    AgeRange = movieDto.AgeRange,
+                    Genre = movieDto.Genre,
+                    EventDay = movieDto.EventDay,
+                };
 
-                var result = await connection.ExecuteScalarAsync<Movie>(updateQuery, movieDto, transaction);
+                await connection.ExecuteAsync(updateQuery, movie, transaction);
+
                 transaction.Commit();
 
-                return result;
+                var selectQuery = @"SELECT * FROM movies WHERE id = @MovieId";
+                var updatedMovie = await connection.QuerySingleAsync<Movie>(selectQuery, new { MovieId = movieId });
+
+                return updatedMovie;
             };
         }
 
