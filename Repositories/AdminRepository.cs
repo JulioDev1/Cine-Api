@@ -168,8 +168,11 @@ namespace CineApi.Repositories
                     throw new UnauthorizedAccessException("dont have permission");
                 }
 
+                var query = "DELETE FROM movies WHERE Id = @Id ";
 
-                return "";
+                connection.Execute(query, new { Id = Id});
+                
+                return "deleted with success";
             }
         }
     }

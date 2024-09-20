@@ -64,5 +64,22 @@ namespace CineApi.Controllers
 
             return movie;
         }
+        [HttpDelete("Delete-movie-admin")]
+        [Authorize]
+        public async Task<ActionResult<string>> DeleteMovieByAdmin(Guid Id)
+        {
+            var userId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                return Unauthorized("user not logged");
+            }
+
+            var guid = Guid.Parse(userId.Value);
+
+            var response = await adminServices.DeleteMovieAdmin(Id, guid);
+
+            return response;
+        }
     }
 }
