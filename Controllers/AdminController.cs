@@ -47,5 +47,22 @@ namespace CineApi.Controllers
 
             return movieId;
         }
+        [HttpPut("update-movie-admin")]
+        [Authorize]
+        public async Task<ActionResult<Movie>> UpdateMovieAssocieted(MovieDto movieDto ,Guid movieId)
+        {
+            var Id = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier);
+
+            if (Id == null)
+            {
+                return Unauthorized("user not logged");
+            }
+
+            var userId = Guid.Parse(Id.Value);
+
+            var movie = await adminServices.UpdateMovieAssocieted(movieDto, movieId, userId);
+
+            return movie;
+        }
     }
 }

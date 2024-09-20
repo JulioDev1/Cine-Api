@@ -27,5 +27,11 @@ namespace CineApi.Services
 
             return guid;
         }
+
+        public async Task<Movie> UpdateMovieAssocieted(MovieDto movieDto, Guid movieId, Guid userId)
+        {
+            var movie = await adminRepository.UpdateMovieAdmin(movieDto, movieId, userId);
+            return movie;
+        }
     }
 }

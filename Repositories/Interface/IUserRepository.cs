@@ -8,6 +8,7 @@ namespace CineApi.Repositories.Interface
         Task<Guid> CreateUserAccountAsync(RegisterDto registerDto);
         Task<string?> FindUserByEmail(string Email);
         Task<User?> GetUserByEmailAsync(string Email);
-        Task<User> GetUserById(Guid id);
+        Task<User> GetUserById(Guid Id);
+
     }
 }

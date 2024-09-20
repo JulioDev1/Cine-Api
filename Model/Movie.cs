@@ -1,4 +1,6 @@
-﻿namespace CineApi.Model
+﻿using CineApi.Dto;
+
+namespace CineApi.Model
 {
     public class Movie
     {
@@ -12,4 +14,7 @@
         public DateTime EventDay { get; set; }
         public ICollection<Chair>? Chairs { get; set; }
     }
+
+
+
 }

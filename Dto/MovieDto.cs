@@ -8,5 +8,4 @@
         public required string Genre { get; set; }
         public DateTime EventDay { get; set; }
     }
-
 }
