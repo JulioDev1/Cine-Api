@@ -90,8 +90,23 @@ namespace CineApi.Repositories
                 };
             }
         }
+        private async Task<int> VerifyMovieByAdmin(Guid movieId, Guid userId, IDbTransaction transaction) 
+        {
+            var checkQuery = @"SELECT COUNT(1) 
+                               FROM UserMovies um
+                               JOIN Users u ON  u.id = um.userid 
+                               WHERE um.movieid = @MovieId AND u.id = @UserId";
 
-        public async Task<Movie> UpdateMovieAdmin(MovieDto movieDto, Guid movieId, Guid userId)
+            var MovieAdmin = await connection.ExecuteScalarAsync<int>(checkQuery, new { MovieId = movieId, UserId = userId }, transaction);
+
+            if (MovieAdmin == 0)
+            {
+                throw new UnauthorizedAccessException("dont have permission");
+            }
+            return MovieAdmin;
+        }
+
+        public async Task<Movie> UpdateMovieAdmin(MovieDto movieDto, Guid Id, Guid userId)
         {
             if (connection.State == ConnectionState.Closed) // Verifica se a conexão está fechada
             {
@@ -100,13 +115,7 @@ namespace CineApi.Repositories
 
             using (var transaction = connection.BeginTransaction())
             {
-                var checkQuery = @"SELECT COUNT(1) 
-                                   FROM UserMovies um
-                                   JOIN Users u ON  u.id = um.userid 
-                                   WHERE um.movieid = @MovieId AND u.id = @UserId";
-
-                var MovieAdmin = await connection.ExecuteScalarAsync<int>(checkQuery, 
-                    new { MovieId = movieId, UserId = userId}, transaction);  
+                var MovieAdmin = await VerifyMovieByAdmin(Id, userId, transaction);
 
                 if(MovieAdmin == 0)
                 {
@@ -121,10 +130,10 @@ namespace CineApi.Repositories
                                     eventday = @EventDay
                                     WHERE id = @Id
                 ";
-                var id = movieId;
+
                 var movie = new Movie
                 {
-                    Id = id,
+                    Id = Id,
                     Title = movieDto.Title,
                     Description = movieDto.Description,
                     AgeRange = movieDto.AgeRange,
@@ -137,13 +146,31 @@ namespace CineApi.Repositories
                 transaction.Commit();
 
                 var selectQuery = @"SELECT * FROM movies WHERE id = @MovieId";
-                var updatedMovie = await connection.QuerySingleAsync<Movie>(selectQuery, new { MovieId = movieId });
+                var updatedMovie = await connection.QuerySingleAsync<Movie>(selectQuery, new { MovieId = Id });
 
                 return updatedMovie;
             };
         }
 
+        public async Task<string> DeleteMovieAdmin(Guid Id, Guid userId)
+        {
+            if (connection.State == ConnectionState.Closed) // Verifica se a conexão está fechada
+            {
+                connection.Open(); // Abre a conexão se necessário
+            }
 
+            using (var transaction = connection.BeginTransaction())
+            {
+                var MovieAdmin = await VerifyMovieByAdmin(Id, userId, transaction);
+
+                if (MovieAdmin == 0)
+                {
+                    throw new UnauthorizedAccessException("dont have permission");
+                }
+
+
+                return "";
+            }
+        }
     }
-
 }
