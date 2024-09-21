@@ -58,6 +58,7 @@ namespace CineApi.Controllers
                 return Unauthorized("user not logged");
             }
 
+
             var userId = Guid.Parse(Id.Value);
 
             var movie = await adminServices.UpdateMovieAssocieted(movieDto, movieId, userId);

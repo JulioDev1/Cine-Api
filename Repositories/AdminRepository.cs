@@ -168,7 +168,9 @@ namespace CineApi.Repositories
                     throw new UnauthorizedAccessException("dont have permission");
                 }
 
-                var query = "DELETE FROM movies WHERE Id = @Id ";
+                var query = @"DELETE FROM CHAIRS WHERE userid = @Id,
+                              DELETE FROM CHAIRS WHERE Id = @Id 
+                             ";
 
                 connection.Execute(query, new { Id = Id});
                 
