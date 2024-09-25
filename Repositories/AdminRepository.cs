@@ -12,6 +12,7 @@ namespace CineApi.Repositories
     {
         private readonly AppDbContext appDbContext;
         private readonly IDbConnection connection;
+
         public AdminRepository(AppDbContext appDbContext)
         {
             this.appDbContext = appDbContext;
@@ -95,7 +96,8 @@ namespace CineApi.Repositories
             var checkQuery = @"SELECT COUNT(1) 
                                FROM UserMovies um
                                JOIN Users u ON  u.id = um.userid 
-                               WHERE um.movieid = @MovieId AND u.id = @UserId";
+                               WHERE um.movieid = @MovieId AND u.id = @UserId
+            ";
 
             var MovieAdmin = await connection.ExecuteScalarAsync<int>(checkQuery, new { MovieId = movieId, UserId = userId }, transaction);
 
@@ -167,13 +169,19 @@ namespace CineApi.Repositories
                 {
                     throw new UnauthorizedAccessException("dont have permission");
                 }
-
-                var query = @"DELETE FROM CHAIRS WHERE userid = @Id,
-                              DELETE FROM CHAIRS WHERE Id = @Id 
-                             ";
-
-                connection.Execute(query, new { Id = Id});
                 
+                var deleteRowUserAndMoviesById = @"
+                    DELETE FROM usermovies WHERE movieid = @MovieId
+                ";
+
+                await connection.ExecuteAsync(deleteRowUserAndMoviesById,new { MovieId = Id } );
+
+                var deleteMovieAndChairsQuery = @"DELETE FROM chairs WHERE userId = @userId AND movieId = @Id ";
+
+                await connection.ExecuteAsync(deleteMovieAndChairsQuery, new { UserId = userId, Id });
+                
+                transaction.Commit();
+
                 return "deleted with success";
             }
         }

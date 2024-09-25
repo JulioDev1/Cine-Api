@@ -23,6 +23,7 @@ namespace CineApi.Controllers
             }
 
             var guid = await userService.CreateUserAsyncService(registerDto);
+
             return Ok(guid);
 
         }

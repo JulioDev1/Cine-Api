@@ -37,7 +37,9 @@ namespace CineApi.Repositories
             using (var transaction = connection.BeginTransaction())
             {
                 var query = "INSERT INTO Users (Name, Email, Password, Role) VALUES (@Name, @Email, @Password, @Role)";
+               
                 var result = await connection.ExecuteScalarAsync<Guid>(query, parameters);
+                
                 transaction.Commit();
 
                 return result;
