@@ -176,9 +176,13 @@ namespace CineApi.Repositories
 
                 await connection.ExecuteAsync(deleteRowUserAndMoviesById,new { MovieId = Id } );
 
-                var deleteMovieAndChairsQuery = @"DELETE FROM chairs WHERE userId = @userId AND movieId = @Id ";
+                var deleteMovieAndChairsQuery = @"DELETE FROM chairs WHERE userId = @userId AND movieId = @Id";
 
                 await connection.ExecuteAsync(deleteMovieAndChairsQuery, new { UserId = userId, Id });
+
+                var deleteMoviesQuery = @"DELETE FROM movies WHERE id = @Id";
+
+                await connection.ExecuteAsync(deleteMoviesQuery, Id);
                 
                 transaction.Commit();
 
