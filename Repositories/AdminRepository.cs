@@ -100,14 +100,14 @@ namespace CineApi.Repositories
 
                 transaction.Commit();
 
-                var selectQuery = @"SELECT * FROM movies WHERE id = @MovieId";
+                var selectQuery = @"SELECT * FROM movies WHERE Id = @MovieId";
                 var updatedMovie = await connection.QuerySingleAsync<Movie>(selectQuery, new { MovieId = Id });
 
                 return updatedMovie;
             };
         }
 
-        public async Task<string> DeleteMovieAdmin(Guid Id, Guid userId)
+        public async Task<string> DeleteMovieAdmin(Guid Id)
         {
             if (connection.State == ConnectionState.Closed) // Verifica se a conexão está fechada
             {
@@ -118,16 +118,18 @@ namespace CineApi.Repositories
             {
 
                 var deleteRowUserAndMoviesById = @"
-                    DELETE FROM movies WHERE Id = @Id
+                    DELETE FROM movies WHERE id = @Id
                 ";
 
-                await connection.ExecuteAsync(deleteRowUserAndMoviesById, Id);
+                await connection.ExecuteAsync(deleteRowUserAndMoviesById, new { Id });
 
                 transaction.Commit();
 
                 return "deleted with success";
             }
         }
+
+
 
         //public async Task<Movie> AllMoviesByAdmin(Guid Id, Guid userId)
         //{

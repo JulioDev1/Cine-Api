@@ -59,7 +59,7 @@ namespace CineApi.Controllers
 
             var userId = Guid.Parse(Id.Value);
 
-            var movie = await adminServices.UpdateMovieAssocieted(movieDto, movieId, userId);
+            var movie = await adminServices.UpdateMovieAssocieted(movieDto, movieId);
 
             return movie;
         }
@@ -76,7 +76,7 @@ namespace CineApi.Controllers
 
             var guid = Guid.Parse(userId.Value);
 
-            var response = await adminServices.DeleteMovieAdmin(Id, guid);
+            var response = await adminServices.DeleteMovieAdmin(Id);
 
             return response;
         }

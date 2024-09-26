@@ -20,16 +20,16 @@ namespace CineApi.Services
             return guid;
         }
 
-        public async Task<string> DeleteMovieAdmin(Guid Id, Guid userId)
+        public async Task<string> DeleteMovieAdmin(Guid Id)
         {
-            var deleteMovie = await adminRepository.DeleteMovieAdmin(Id, userId);
+            var deleteMovie = await adminRepository.DeleteMovieAdmin(Id);
 
             return deleteMovie;
         }
 
-        public async Task<Movie> UpdateMovieAssocieted(MovieDto movieDto, Guid movieId, Guid userId)
+        public async Task<Movie> UpdateMovieAssocieted(MovieDto movieDto, Guid movieId)
         {
-            var movie = await adminRepository.UpdateMovieAdmin(movieDto, movieId, userId);
+            var movie = await adminRepository.UpdateMovieAdmin(movieDto, movieId);
             return movie;
         }
     }
