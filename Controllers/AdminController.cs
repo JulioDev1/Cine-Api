@@ -37,8 +37,6 @@ namespace CineApi.Controllers
 
             var user = await userService.GetUserByIdService(userId);
 
-            Console.WriteLine(user.Id);
-
             if (user.Role != UserRole.Admin)
             {
                 return Unauthorized("user not admin");

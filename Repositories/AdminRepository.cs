@@ -35,11 +35,13 @@ namespace CineApi.Repositories
                         Description = movieDto.Description,
                         Genre = movieDto.Genre,
                         EventDay = movieDto.EventDay,
+                        UserId = userId,
                     };
+
                     var movieId = await connection.ExecuteScalarAsync<Guid>(
-                        @"INSERT INTO Movies(title, description, ageRange, genre, eventDay)
-                    VALUES (@Title, @Description, @AgeRange, @Genre, @EventDay) RETURNING Id
-                    ", movies, transaction);
+                        @"INSERT INTO Movies(title, description, ageRange, genre, eventDay, userid)
+                          VALUES (@Title, @Description, @AgeRange, @Genre, @EventDay, @UserId) RETURNING Id
+                        ", movies, transaction);
 
 
                     for (var i = 0; i < quantity; i++)
@@ -47,11 +49,10 @@ namespace CineApi.Repositories
                         var chairs = new Chair
                         {
                             MovieId = movieId,
-                            UserId = userId,
                             Availibility = false,
                         };
                         await connection.ExecuteAsync(
-                            @"INSERT INTO Chairs(movieId, userId, availibility) VALUES(@MovieId,@UserId, @Availibility)",
+                            @"INSERT INTO Chairs(movieId, availibility) VALUES(@MovieId, @Availibility)",
                              chairs, transaction);
                     }
                     transaction.Commit();
@@ -91,7 +92,7 @@ namespace CineApi.Repositories
                 };
             }
         }
-        private async Task<int> VerifyMovieByAdmin(Guid movieId, Guid userId, IDbTransaction transaction) 
+        private async Task<int> VerifyMovieByAdmin(Guid movieId, Guid userId, IDbTransaction transaction)
         {
             var checkQuery = @"SELECT COUNT(1) 
                                FROM UserMovies um
@@ -119,7 +120,7 @@ namespace CineApi.Repositories
             {
                 var MovieAdmin = await VerifyMovieByAdmin(Id, userId, transaction);
 
-                if(MovieAdmin == 0)
+                if (MovieAdmin == 0)
                 {
                     throw new UnauthorizedAccessException("dont have permission");
                 }
@@ -169,12 +170,12 @@ namespace CineApi.Repositories
                 {
                     throw new UnauthorizedAccessException("dont have permission");
                 }
-                
+
                 var deleteRowUserAndMoviesById = @"
                     DELETE FROM usermovies WHERE movieid = @MovieId
                 ";
 
-                await connection.ExecuteAsync(deleteRowUserAndMoviesById,new { MovieId = Id } );
+                await connection.ExecuteAsync(deleteRowUserAndMoviesById, new { MovieId = Id });
 
                 var deleteMovieAndChairsQuery = @"DELETE FROM chairs WHERE userId = @userId AND movieId = @Id";
 
@@ -183,11 +184,31 @@ namespace CineApi.Repositories
                 var deleteMoviesQuery = @"DELETE FROM movies WHERE id = @Id";
 
                 await connection.ExecuteAsync(deleteMoviesQuery, Id);
-                
+
                 transaction.Commit();
 
                 return "deleted with success";
             }
         }
+
+        //public async Task<Movie> AllMoviesByAdmin(Guid Id, Guid userId)
+        //{
+        //    if (connection.State == ConnectionState.Closed) // Verifica se a conexão está fechada
+        //    {
+        //        connection.Open(); // Abre a conexão se necessário
+        //    }
+
+        //    using (var transaction = connection.BeginTransaction())
+        //    {
+        //        var MovieAdmin = await VerifyMovieByAdmin(Id, userId, transaction);
+
+        //        if (MovieAdmin == 0)
+        //        {
+        //            throw new UnauthorizedAccessException("dont have permission");
+        //        }
+
+                
+        //    }
+        //}
     }
 }

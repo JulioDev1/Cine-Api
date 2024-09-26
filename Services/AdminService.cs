@@ -17,14 +17,6 @@ namespace CineApi.Services
         {
            var guid = await adminRepository.CreateMovieByAdmin(movieDto, userId, qtd);
 
-            var MovieByAdmin = new UserMovies
-            {
-                MovieId = guid,
-                UserId = userId,
-            };
-
-            await adminRepository.AssociateMovieByAdmin(MovieByAdmin);
-
             return guid;
         }
 
