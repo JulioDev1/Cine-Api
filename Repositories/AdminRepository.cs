@@ -68,7 +68,7 @@ namespace CineApi.Repositories
         }
      
 
-        public async Task<Movie> UpdateMovieAdmin(MovieDto movieDto, Guid Id, Guid userId)
+        public async Task<Movie> UpdateMovieAdmin(MovieDto movieDto, Guid Id)
         {
             if (connection.State == ConnectionState.Closed) // Verifica se a conexão está fechada
             {
@@ -117,20 +117,11 @@ namespace CineApi.Repositories
             using (var transaction = connection.BeginTransaction())
             {
 
-              
                 var deleteRowUserAndMoviesById = @"
-                    DELETE FROM usermovies WHERE movieid = @MovieId
+                    DELETE FROM movies WHERE Id = @Id
                 ";
 
-                await connection.ExecuteAsync(deleteRowUserAndMoviesById, new { MovieId = Id });
-
-                var deleteMovieAndChairsQuery = @"DELETE FROM chairs WHERE userId = @userId AND movieId = @Id";
-
-                await connection.ExecuteAsync(deleteMovieAndChairsQuery, new { UserId = userId, Id });
-
-                var deleteMoviesQuery = @"DELETE FROM movies WHERE id = @Id";
-
-                await connection.ExecuteAsync(deleteMoviesQuery, Id);
+                await connection.ExecuteAsync(deleteRowUserAndMoviesById, Id);
 
                 transaction.Commit();
 
