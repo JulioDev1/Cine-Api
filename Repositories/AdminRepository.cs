@@ -66,48 +66,7 @@ namespace CineApi.Repositories
 
             }
         }
-        public async Task<Guid> AssociateMovieByAdmin(UserMovies userMovies)
-        {
-
-            if (connection.State == ConnectionState.Closed) // Verifica se a conexão está fechada
-            {
-                connection.Open(); // Abre a conexão se necessário
-            }
-
-            using (var transaction = connection.BeginTransaction())
-            {
-                try
-                {
-                    var query = @"INSERT INTO UserMovies(userId, movieId) 
-                    VALUES (@UserId, @MovieId) RETURNING Id";
-
-                    var result = await connection.ExecuteScalarAsync<Guid>(query, userMovies, transaction);
-                    transaction.Commit();
-                    return result;
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    throw new Exception("error", ex);
-                };
-            }
-        }
-        private async Task<int> VerifyMovieByAdmin(Guid movieId, Guid userId, IDbTransaction transaction)
-        {
-            var checkQuery = @"SELECT COUNT(1) 
-                               FROM UserMovies um
-                               JOIN Users u ON  u.id = um.userid 
-                               WHERE um.movieid = @MovieId AND u.id = @UserId
-            ";
-
-            var MovieAdmin = await connection.ExecuteScalarAsync<int>(checkQuery, new { MovieId = movieId, UserId = userId }, transaction);
-
-            if (MovieAdmin == 0)
-            {
-                throw new UnauthorizedAccessException("dont have permission");
-            }
-            return MovieAdmin;
-        }
+     
 
         public async Task<Movie> UpdateMovieAdmin(MovieDto movieDto, Guid Id, Guid userId)
         {
@@ -118,13 +77,6 @@ namespace CineApi.Repositories
 
             using (var transaction = connection.BeginTransaction())
             {
-                var MovieAdmin = await VerifyMovieByAdmin(Id, userId, transaction);
-
-                if (MovieAdmin == 0)
-                {
-                    throw new UnauthorizedAccessException("dont have permission");
-                }
-
                 var updateQuery = @"UPDATE movies
                                     SET title = @Title, 
                                     description = @Description, 
@@ -164,13 +116,8 @@ namespace CineApi.Repositories
 
             using (var transaction = connection.BeginTransaction())
             {
-                var MovieAdmin = await VerifyMovieByAdmin(Id, userId, transaction);
 
-                if (MovieAdmin == 0)
-                {
-                    throw new UnauthorizedAccessException("dont have permission");
-                }
-
+              
                 var deleteRowUserAndMoviesById = @"
                     DELETE FROM usermovies WHERE movieid = @MovieId
                 ";
