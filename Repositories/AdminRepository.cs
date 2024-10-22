@@ -68,7 +68,7 @@ namespace CineApi.Repositories
         }
      
 
-        public async Task<Movie> UpdateMovieAdmin(MovieDto movieDto, Guid Id)
+        public async Task<Movie> UpdateMovieAdmin(MovieDto movieDto, Guid Id, Guid userId)
         {
             if (connection.State == ConnectionState.Closed) // Verifica se a conexão está fechada
             {
@@ -83,17 +83,18 @@ namespace CineApi.Repositories
                                     agerange = @AgeRange, 
                                     genre = @Genre, 
                                     eventday = @EventDay
-                                    WHERE id = @Id
+                                    WHERE id = @Id AND userid = @UserId
                 ";
 
-                var movie = new Movie
+                var movie = new 
                 {
-                    Id = Id,
                     Title = movieDto.Title,
                     Description = movieDto.Description,
                     AgeRange = movieDto.AgeRange,
                     Genre = movieDto.Genre,
                     EventDay = movieDto.EventDay,
+                    Id = Id, 
+                    UserId = userId,
                 };
 
                 await connection.ExecuteAsync(updateQuery, movie, transaction);
@@ -101,13 +102,13 @@ namespace CineApi.Repositories
                 transaction.Commit();
 
                 var selectQuery = @"SELECT * FROM movies WHERE Id = @MovieId";
-                var updatedMovie = await connection.QuerySingleAsync<Movie>(selectQuery, new { MovieId = Id });
+                var updatedMovie = await connection.QuerySingleAsync<Movie>(selectQuery, new { MovieId = Id, UserId =  userId });
 
                 return updatedMovie;
             };
         }
 
-        public async Task<string> DeleteMovieAdmin(Guid Id)
+        public async Task<string> DeleteMovieAdmin(Guid Id, Guid userId)
         {
             if (connection.State == ConnectionState.Closed) // Verifica se a conexão está fechada
             {
@@ -116,12 +117,16 @@ namespace CineApi.Repositories
 
             using (var transaction = connection.BeginTransaction())
             {
-
-                var deleteRowUserAndMoviesById = @"
-                    DELETE FROM movies WHERE id = @Id
+                var deleteChairs = @"
+                DELETE FROM chairs WHERE movieId = @Id
                 ";
+                await connection.ExecuteAsync(deleteChairs, new { Id }, transaction: transaction);
 
-                await connection.ExecuteAsync(deleteRowUserAndMoviesById, new { Id });
+                // Em seguida, exclua o filme
+                var deleteMovie = @"
+                DELETE FROM movies WHERE id = @Id AND userid = @UserId
+                ";
+                await connection.ExecuteAsync(deleteMovie, new { Id, UserId = userId }, transaction: transaction);
 
                 transaction.Commit();
 
