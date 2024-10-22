@@ -9,5 +9,7 @@ namespace CineApi.Services.Interface
         Task<Movie> UpdateMovieAssocieted(MovieDto movieDto, Guid movieId, Guid userId);
         Task<string> DeleteMovieAdmin(Guid Id, Guid userId);
         Task<List<Movie>> AllMoviesByAdmin(Guid userId);
+        Task<Movie> GetMovieById(Guid Id, Guid userId);
+
     }
 }

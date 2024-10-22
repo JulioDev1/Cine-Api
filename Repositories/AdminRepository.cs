@@ -149,5 +149,14 @@ namespace CineApi.Repositories
                 return movies.ToList();
             }
         }
+
+        public async Task<Movie> GetMovieById(Guid id, Guid userId)
+        {
+            var getMovieById = @"SELECT * from Movies WHERE userid = @UserId AND id = @Id";
+
+            var movie = await connection.QuerySingleAsync<Movie>(getMovieById, new { Id = id, UserId = userId });
+
+            return movie;
+        }
     }
 }

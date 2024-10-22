@@ -3,6 +3,7 @@ using CineApi.Model;
 using CineApi.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Crypto.Operators;
 using System.Security.Claims;
 
 namespace CineApi.Controllers
@@ -94,10 +95,30 @@ namespace CineApi.Controllers
             var guid = Guid.Parse(userId.Value);
 
             var response = await adminServices.AllMoviesByAdmin(guid);
+           
+            if (response == null || !response.Any())
+            {
+                return NotFound("No movies found for this admin.");
+            }
 
-            return response;
+            return Ok(response);
         }
+        [HttpGet("get-movie/{id}")]
+        public async Task<ActionResult<Movie>> GetMovieById(Guid id)
+        {
+            var userId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier);
 
+            if (userId == null)
+            {
+                return Unauthorized("user not logged");
+            }
+
+            var guid = Guid.Parse(userId.Value);
+
+            var response = await adminServices.GetMovieById(id, guid);
+
+            return Ok(response);
+        }
 
     }
 }
