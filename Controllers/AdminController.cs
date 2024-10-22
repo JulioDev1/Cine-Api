@@ -80,5 +80,24 @@ namespace CineApi.Controllers
 
             return response;
         }
+        [HttpGet("all-movies-admin")]
+        [Authorize]
+        public async Task<ActionResult<List<Movie>>> AllMovieAdmin()
+        {
+            var userId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                return Unauthorized("user not logged");
+            }
+
+            var guid = Guid.Parse(userId.Value);
+
+            var response = await adminServices.AllMoviesByAdmin(guid);
+
+            return response;
+        }
+
+
     }
 }

@@ -66,7 +66,7 @@ namespace CineApi.Repositories
 
             }
         }
-     
+
 
         public async Task<Movie> UpdateMovieAdmin(MovieDto movieDto, Guid Id, Guid userId)
         {
@@ -86,14 +86,14 @@ namespace CineApi.Repositories
                                     WHERE id = @Id AND userid = @UserId
                 ";
 
-                var movie = new 
+                var movie = new
                 {
                     Title = movieDto.Title,
                     Description = movieDto.Description,
                     AgeRange = movieDto.AgeRange,
                     Genre = movieDto.Genre,
                     EventDay = movieDto.EventDay,
-                    Id = Id, 
+                    Id = Id,
                     UserId = userId,
                 };
 
@@ -102,7 +102,7 @@ namespace CineApi.Repositories
                 transaction.Commit();
 
                 var selectQuery = @"SELECT * FROM movies WHERE Id = @MovieId";
-                var updatedMovie = await connection.QuerySingleAsync<Movie>(selectQuery, new { MovieId = Id, UserId =  userId });
+                var updatedMovie = await connection.QuerySingleAsync<Movie>(selectQuery, new { MovieId = Id, UserId = userId });
 
                 return updatedMovie;
             };
@@ -134,26 +134,20 @@ namespace CineApi.Repositories
             }
         }
 
+        public async Task<List<Movie>> AllMoviesByAdmin( Guid userId)
+        {
+            if (connection.State == ConnectionState.Closed) // Verifica se a conexão está fechada
+            {
+                connection.Open(); // Abre a conexão se necessário
+            }
 
+            using (var transaction = connection.BeginTransaction())
+            {
+                var allMoviesCreatedByAdmin = @"SELECT * FROM movies WHERE userid = @UserId";
 
-        //public async Task<Movie> AllMoviesByAdmin(Guid Id, Guid userId)
-        //{
-        //    if (connection.State == ConnectionState.Closed) // Verifica se a conexão está fechada
-        //    {
-        //        connection.Open(); // Abre a conexão se necessário
-        //    }
-
-        //    using (var transaction = connection.BeginTransaction())
-        //    {
-        //        var MovieAdmin = await VerifyMovieByAdmin(Id, userId, transaction);
-
-        //        if (MovieAdmin == 0)
-        //        {
-        //            throw new UnauthorizedAccessException("dont have permission");
-        //        }
-
-                
-        //    }
-        //}
+                var movies = await connection.QueryAsync<Movie>(allMoviesCreatedByAdmin,new{UserId = userId });
+                return movies.ToList();
+            }
+        }
     }
 }

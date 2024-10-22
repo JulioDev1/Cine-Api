@@ -13,6 +13,12 @@ namespace CineApi.Services
         {
             this.adminRepository = adminRepository;
         }
+
+        public async Task<List<Movie>> AllMoviesByAdmin(Guid userId)
+        {
+           return await adminRepository.AllMoviesByAdmin(userId);
+        }
+
         public async Task<Guid> CreateMovieAndChairs(MovieDto movieDto, Guid userId, int qtd)
         {
            var guid = await adminRepository.CreateMovieByAdmin(movieDto, userId, qtd);

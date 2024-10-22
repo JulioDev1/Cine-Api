@@ -8,5 +8,6 @@ namespace CineApi.Services.Interface
         Task<Guid> CreateMovieAndChairs(MovieDto movieDto, Guid userId, int qtd);
         Task<Movie> UpdateMovieAssocieted(MovieDto movieDto, Guid movieId, Guid userId);
         Task<string> DeleteMovieAdmin(Guid Id, Guid userId);
+        Task<List<Movie>> AllMoviesByAdmin(Guid userId);
     }
 }
