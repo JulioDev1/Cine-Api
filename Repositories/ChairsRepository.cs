@@ -1,0 +1,95 @@
+﻿using CineApi.Context;
+using CineApi.Model;
+using CineApi.Repositories.Interface;
+using Dapper;
+using System.Data;
+using System.Transactions;
+
+namespace CineApi.Repositories
+{
+    public class ChairsRepository : IChairRepository
+    {
+
+        private readonly AppDbContext appDbContext;
+        private readonly IDbConnection connection;
+        public ChairsRepository(AppDbContext appDbContext)
+        {
+            this.appDbContext = appDbContext;
+            this.connection = appDbContext.CreateConnection();
+        }
+
+
+        public async Task<bool> ChairDisponibility(Guid id)
+        {
+            if (connection.State == ConnectionState.Closed) // Verifica se a conexão está fechada
+            {
+                connection.Open(); // Abre a conexão se necessário
+            }
+            using (var transaction = connection.BeginTransaction())
+            {
+                var chairDisponibility = @"SELECT avaibility FROM chairs WHERE id = @Id";
+
+                var chair = await connection.QuerySingleOrDefaultAsync<bool>(chairDisponibility, new { Id = id });
+
+                transaction.Commit();
+
+                return chair;
+            }
+        }
+
+        public async Task<List<Chair>?> GetAllChairs(Guid id)
+        {
+                if (connection.State == ConnectionState.Closed) // Verifica se a conexão está fechada
+                {
+                    connection.Open(); // Abre a conexão se necessário
+                }
+            using (var transaction = connection.BeginTransaction())
+            {
+             var allChairSections = @"SELECT * FROM chairs WHERE movieId = @MovieId";
+
+                    var AllChairsList = await connection.QueryAsync<Chair>(allChairSections, new { MoveId = id });
+
+                    transaction.Commit();
+
+                    return AllChairsList.ToList();
+                }
+        }
+
+            public async Task<Chair> GetChairById(Guid id)
+            {
+                if (connection.State == ConnectionState.Closed)
+                {
+                    connection.Open();
+                }
+                using (var transaction = connection.BeginTransaction())
+                {
+                    var getChairQuery = @"SELECT * FROM chairs WHERE Id = @Id";
+
+                    var getChairById = await connection.QueryFirstOrDefaultAsync<Chair>(getChairQuery, new { MoveId = id });
+
+                    transaction.Commit();
+
+                    return getChairById;
+
+                }
+            }
+            public Task<Guid> ReserveChairForUser(Guid userId, Guid id)
+            {
+                if (connection.State == ConnectionState.Closed) // Verifica se a conexão está fechada
+                {
+                    connection.Open(); // Abre a conexão se necessário
+                }
+                using (var transaction = connection.BeginTransaction())
+                {
+                    var setWatcherForChair = @"UPDATE chairs SET Availability = @NewAvailability 
+                                               AND userId = @UserId WHERE id = @Id RETURNING Id";
+
+                    var updateChairDisponibility = connection.ExecuteScalarAsync<Guid>(setWatcherForChair, new {UserId = userId, Id = id});
+
+                    transaction.Commit();
+                
+                    return updateChairDisponibility;
+                }
+            }
+    }
+}

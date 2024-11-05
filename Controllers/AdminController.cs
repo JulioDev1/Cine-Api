@@ -64,6 +64,7 @@ namespace CineApi.Controllers
 
             return movie;
         }
+        
         [HttpDelete("Delete-movie-admin")]
         [Authorize]
         public async Task<ActionResult<string>> DeleteMovieByAdmin(Guid Id)
@@ -119,6 +120,5 @@ namespace CineApi.Controllers
 
             return Ok(response);
         }
-
     }
 }
