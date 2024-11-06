@@ -18,6 +18,8 @@ builder.Services.AddScoped<AppDbContext>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IChairRepository, ChairsRepository>();
+builder.Services.AddScoped<IChairService, ChairService>();
 builder.Services.AddScoped<ICrypthografyService, CrypthografyService>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IAdminService, AdminService>();

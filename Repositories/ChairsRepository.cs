@@ -27,41 +27,60 @@ namespace CineApi.Repositories
             }
             using (var transaction = connection.BeginTransaction())
             {
-                var chairDisponibility = @"SELECT avaibility FROM chairs WHERE id = @Id";
+                try
+                {
 
-                var chair = await connection.QuerySingleOrDefaultAsync<bool>(chairDisponibility, new { Id = id });
+                    var chairDisponibility = @"SELECT avaibility FROM chairs WHERE id = @Id";
 
-                transaction.Commit();
+                    var chair = await connection.QuerySingleOrDefaultAsync<bool>(chairDisponibility, new { Id = id });
 
-                return chair;
+                    transaction.Commit();
+
+                    return chair;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw new Exception(ex.Message);
+                }
             }
         }
 
         public async Task<List<Chair>?> GetAllChairs(Guid id)
         {
-                if (connection.State == ConnectionState.Closed) // Verifica se a conexão está fechada
-                {
-                    connection.Open(); // Abre a conexão se necessário
-                }
+            if (connection.State == ConnectionState.Closed) // Verifica se a conexão está fechada
+            {
+                connection.Open(); // Abre a conexão se necessário
+            }
             using (var transaction = connection.BeginTransaction())
             {
-             var allChairSections = @"SELECT * FROM chairs WHERE movieId = @MovieId";
+                try
+                {
+                    var allChairSections = @"SELECT * FROM chairs WHERE movieId = @MovieId";
 
-                    var AllChairsList = await connection.QueryAsync<Chair>(allChairSections, new { MoveId = id });
+                    var AllChairsList = await connection.QueryAsync<Chair>(allChairSections, new { MovieId = id });
 
                     transaction.Commit();
 
                     return AllChairsList.ToList();
                 }
+                catch (Exception ex) 
+                {
+                    transaction.Rollback();
+                    throw new Exception(ex.Message);
+                }
+            }
         }
 
-            public async Task<Chair> GetChairById(Guid id)
+        public async Task<Chair> GetChairById(Guid id)
+        {
+            if (connection.State == ConnectionState.Closed)
             {
-                if (connection.State == ConnectionState.Closed)
-                {
                     connection.Open();
-                }
-                using (var transaction = connection.BeginTransaction())
+            }
+            using (var transaction = connection.BeginTransaction())
+            {
+                try
                 {
                     var getChairQuery = @"SELECT * FROM chairs WHERE Id = @Id";
 
@@ -70,9 +89,14 @@ namespace CineApi.Repositories
                     transaction.Commit();
 
                     return getChairById;
-
+                }
+                catch (Exception ex) 
+                { 
+                    transaction.Rollback();
+                    throw new Exception(ex.Message);
                 }
             }
+        }
             public Task<Guid> ReserveChairForUser(Guid userId, Guid id)
             {
                 if (connection.State == ConnectionState.Closed) // Verifica se a conexão está fechada
@@ -81,14 +105,23 @@ namespace CineApi.Repositories
                 }
                 using (var transaction = connection.BeginTransaction())
                 {
-                    var setWatcherForChair = @"UPDATE chairs SET Availability = @NewAvailability 
-                                               AND userId = @UserId WHERE id = @Id RETURNING Id";
+                    try
+                    {
 
-                    var updateChairDisponibility = connection.ExecuteScalarAsync<Guid>(setWatcherForChair, new {UserId = userId, Id = id});
+                        var setWatcherForChair = @"UPDATE chairs SET Availability = @NewAvailability 
+                                                   AND userId = @UserId WHERE id = @Id RETURNING Id";
 
-                    transaction.Commit();
+                        var updateChairDisponibility = connection.ExecuteScalarAsync<Guid>(setWatcherForChair, new { NewAvailability = true ,UserId = userId, Id = id });
+
+                        transaction.Commit();
                 
-                    return updateChairDisponibility;
+                        return updateChairDisponibility;
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        throw new Exception(ex.Message);
+                    }
                 }
             }
     }
