@@ -51,5 +51,21 @@ namespace CineApi.Controllers
 
             return Ok(guid);
         }
+        [HttpGet("chair/{id}")]
+        [Authorize]
+        public async Task<ActionResult<Chair>> GetChairById(Guid id)
+        {
+            var Id = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier);
+
+            if (Id == null)
+            {
+                return Unauthorized("user not logged");
+            }
+            var userId = Guid.Parse(Id.Value);
+
+            var chair = await chairService.GetChairById(id);
+
+            return Ok(chair);
+        }
     }
 }

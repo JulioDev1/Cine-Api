@@ -18,9 +18,10 @@ namespace CineApi.Services
             return await chairRepository.GetAllChairs(id);
         }
 
-        public Task<Chair> GetChairById(Guid id)
+        public async Task<Chair> GetChairById(Guid id)
         {
-            throw new NotImplementedException();
+          return await chairRepository.GetChairById(id);
+           
         }
 
         public async Task<Guid> ReserveChairForUser(Guid userId, Guid Id)

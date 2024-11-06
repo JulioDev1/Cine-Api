@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CineApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+80645d931b32482d0091258e94820a8fcc07976c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8c9923ae4b9d39e9012c2f3cbc9d80fa755beaff")]
 [assembly: System.Reflection.AssemblyProductAttribute("CineApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CineApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
