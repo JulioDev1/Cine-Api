@@ -1,6 +1,7 @@
 ﻿using CineApi.Dto;
 using CineApi.Model;
 using CineApi.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.CompilerServices;
@@ -20,7 +21,8 @@ namespace CineApi.Controllers
         }
 
         [HttpGet("{movieId}")]
-        public async Task<ActionResult <List<Chair>?> > AllChairMovie(Guid movieId)
+        [Authorize]
+        public async Task<ActionResult <List<Chair>?>> AllChairMovie(Guid movieId)
         {
 
             var userId = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier);
@@ -29,7 +31,25 @@ namespace CineApi.Controllers
             {
                 return Unauthorized("user not logged");
             }
-            return await chairService.GetAllChairs(movieId);
+            var chairs =  await chairService.GetAllChairs(movieId);
+            
+            return Ok(chairs);
+        }
+        [HttpPatch("reserve-chair/{id}")]
+        [Authorize]
+        public async Task <ActionResult<Guid>> ReserveChairForUser(Guid id)
+        {
+            var Id = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier);
+
+            if (Id == null)
+            {
+                return Unauthorized("user not logged");
+            }
+            var userId = Guid.Parse(Id.Value);
+            
+            var guid = await chairService.ReserveChairForUser(userId, id);
+
+            return Ok(guid);
         }
     }
 }

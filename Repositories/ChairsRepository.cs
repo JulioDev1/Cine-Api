@@ -30,7 +30,7 @@ namespace CineApi.Repositories
                 try
                 {
 
-                    var chairDisponibility = @"SELECT avaibility FROM chairs WHERE id = @Id";
+                    var chairDisponibility = @"SELECT availibility FROM chairs WHERE id = @Id";
 
                     var chair = await connection.QuerySingleOrDefaultAsync<bool>(chairDisponibility, new { Id = id });
 
@@ -97,32 +97,32 @@ namespace CineApi.Repositories
                 }
             }
         }
-            public Task<Guid> ReserveChairForUser(Guid userId, Guid id)
+        public async Task<Guid> ReserveChairForUser(Guid userId, Guid? id)
+        {
+        if (connection.State == ConnectionState.Closed) // Verifica se a conexão está fechada
+        {
+            connection.Open(); // Abre a conexão se necessário
+        }
+        using (var transaction = connection.BeginTransaction())
+        {
+            try
             {
-                if (connection.State == ConnectionState.Closed) // Verifica se a conexão está fechada
-                {
-                    connection.Open(); // Abre a conexão se necessário
-                }
-                using (var transaction = connection.BeginTransaction())
-                {
-                    try
-                    {
 
-                        var setWatcherForChair = @"UPDATE chairs SET Availability = @NewAvailability 
-                                                   AND userId = @UserId WHERE id = @Id RETURNING Id";
+                var setWatcherForChair = @"UPDATE chairs SET Availibility = @NewAvailability, 
+                                           userId = @UserId WHERE id = @Id RETURNING userId";
 
-                        var updateChairDisponibility = connection.ExecuteScalarAsync<Guid>(setWatcherForChair, new { NewAvailability = true ,UserId = userId, Id = id });
+                var updateChairDisponibility = await connection.ExecuteScalarAsync<Guid>(setWatcherForChair, new { NewAvailability = true ,UserId = userId, Id = id });
 
-                        transaction.Commit();
+                transaction.Commit();
                 
-                        return updateChairDisponibility;
-                    }
-                    catch (Exception ex)
+                return updateChairDisponibility;
+            }
+            catch (Exception ex)
                     {
                         transaction.Rollback();
                         throw new Exception(ex.Message);
                     }
-                }
             }
+        }
     }
 }

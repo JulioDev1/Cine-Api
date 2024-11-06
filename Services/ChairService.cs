@@ -31,7 +31,9 @@ namespace CineApi.Services
             {
                 throw new Exception("chair is not available");
             }
-            return await chairRepository.ReserveChairForUser(userId, Id);
+            var chair = await chairRepository.ReserveChairForUser(userId, Id);
+
+            return chair;
 
         }
     }
