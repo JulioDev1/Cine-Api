@@ -18,6 +18,32 @@ namespace CineApi.Repositories
             this.connection = appDbContext.CreateConnection();
         }
 
+        public async Task cancelChair(Guid id)
+        {
+            if (connection.State == ConnectionState.Closed) // Verifica se a conexão está fechada
+            {
+                connection.Open(); // Abre a conexão se necessário
+            }
+            using (var transaction = connection.BeginTransaction())
+            {
+                try
+                {
+
+                    var setWatcherForChair = @"UPDATE chairs SET Availibility = @NewAvailability, 
+                                               userId = NULL WHERE id = @Id RETURNING userId";
+
+                    await connection.ExecuteScalarAsync<Guid>(setWatcherForChair, new { NewAvailability = false, Id = id });
+
+                    transaction.Commit();
+
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw new Exception(ex.Message);
+                }
+            }
+        }
 
         public async Task<bool> ChairDisponibility(Guid id)
         {

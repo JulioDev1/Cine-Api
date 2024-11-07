@@ -7,6 +7,7 @@ namespace CineApi.Repositories.Interface
         Task<Guid> ReserveChairForUser(Guid userId, Guid? id);
         Task<bool> ChairDisponibility(Guid id);
         Task<List<Chair>?> GetAllChairs(Guid movieId);
+        Task cancelChair(Guid id);
         Task<Chair> GetChairById(Guid id);
     }
 }

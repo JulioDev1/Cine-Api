@@ -13,6 +13,18 @@ namespace CineApi.Services
             this.chairRepository = chairRepository;
         }
 
+        public async Task CancelChairForUser(Guid id, Guid userId)
+        {
+            var userChair = await chairRepository.GetChairById(id);
+            
+            if (userId != userChair.UserId) 
+            {
+                throw new Exception("this is not available");
+            }
+
+           await chairRepository.cancelChair(id);
+        }
+
         public async Task<List<Chair>?> GetAllChairs(Guid id)
         {
             return await chairRepository.GetAllChairs(id);

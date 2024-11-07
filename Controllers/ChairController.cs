@@ -67,5 +67,21 @@ namespace CineApi.Controllers
 
             return Ok(chair);
         }
+        [HttpPatch("chair-cancel/{id}")]
+        [Authorize]
+        public async Task<ActionResult<string>> CancelUserChair(Guid id)
+        {
+            var Id = User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier);
+
+            if (Id == null)
+            {
+                return Unauthorized("user not logged");
+            }
+            var userId = Guid.Parse(Id.Value);
+
+            await chairService.CancelChairForUser(id, userId);
+
+            return "cancel with sucess";
+        }
     }
 }
